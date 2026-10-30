@@ -193,16 +193,16 @@ Example response from the API reference, abridged — real values depend on the 
     "consumer": {
       "email": null,
       "phone": "example",
-      "address": "- F 53089 LAVAL Cedex 9 53089 LAVAL Cedex 9",
-      "website": "service.consommateurs@jevousremercie.fr",
-      "company_name": "BRIDELICE"
+      "address": "example",
+      "website": "example",
+      "company_name": "example"
     },
     "operator": {
       "email": null,
       "phone": null,
-      "address": "15 Rue de l'Etang Z.A. Les Placis 35230 BOURGBARRE",
+      "address": "example",
       "website": null,
-      "company_name": "LACTALIS BEURRES ET CREMES"
+      "company_name": "example"
     }
   },
   "currency": "€",
