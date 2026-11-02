@@ -8,7 +8,7 @@
 
 The **Piloterr Carrefour Scraper API** lets you extract public data from Carrefour as **clean, structured JSON** — no proxies, headless browsers or HTML parsing to maintain. Endpoints available in production:
 
-- **Carrefour Product API** — Read one Carrefour.fr product from its page URL.
+- **Carrefour Product API** — Extract full product details from a Carrefour product page, including price, brand, nutritional info, packaging, and availability.
 - **Carrefour Search API** — Search for products on Carrefour by keyword or URL, returning structured listings with prices, ratings, and pagination.
 - **Carrefour Suggest API** — Get product suggestions from Carrefour by keyword or EAN, returning matching products with pricing, availability, and product details.
 
@@ -16,7 +16,7 @@ Use it for price monitoring, assortment tracking, competitor analysis, product r
 
 | Endpoint | Path | Credits | What you get |
 |---|---|---|---|
-| [Carrefour Product API](#carrefour-product-api) | `/v2/carrefour/product` | 2 | Read one Carrefour.fr product from its page URL. Every product returns the same keys |
+| [Carrefour Product API](#carrefour-product-api) | `/v2/carrefour/product` | 2 | Extract full product details from a Carrefour product page, including price, brand, nutritional info, packaging, and availability. |
 | [Carrefour Search API](#carrefour-search-api) | `/v2/carrefour/search` | 2 | Search for products on Carrefour by keyword or URL, returning structured listings with prices, ratings, and pagination. |
 | [Carrefour Suggest API](#carrefour-suggest-api) | `/v2/carrefour/suggest` | 1 | Get product suggestions from Carrefour by keyword or EAN, returning matching products with pricing, availability, and product details. |
 
@@ -49,7 +49,7 @@ pip install requests        # Python
 
 ## Carrefour Product API
 
-Read one Carrefour.fr product from its page URL. Every product returns the same keys: price, brand, pack size, Nutriscore, categories, unit price, and customer reviews.
+Extract full product details from a Carrefour product page, including price, brand, nutritional info, packaging, and availability.
 
 `GET | POST https://api.piloterr.com/v2/carrefour/product` · **2 credits per request** · [Full reference](https://app.piloterr.com/openapi)
 
@@ -57,7 +57,7 @@ Read one Carrefour.fr product from its page URL. Every product returns the same 
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `query` | string | ✅ | Product page URL on www.carrefour.fr. The path starts with `/p/`. |
+| `query` | string | ✅ | Full Carrefour product page URL from `carrefour.fr`. |
 
 ### Python example
 
@@ -88,37 +88,7 @@ type CarrefourProduct = {
   image?: string;
   price?: string;
   title?: string;
-  contact?: {
-    consumer?: {
-      email?: unknown;
-      phone?: string;
-      address?: string;
-      website?: string;
-      company_name?: string;
-    };
-    operator?: {
-      email?: unknown;
-      phone?: unknown;
-      address?: string;
-      website?: unknown;
-      company_name?: string;
-    };
-  };
   currency?: string;
-  features?: {
-    nom_legal?: string;
-    ingredients?: string;
-    valeurs_nutritionnelles?: {
-      sel?: string;
-      sucres?: string;
-      glucides?: string;
-      proteines?: string;
-      matieres_grasses?: string;
-      acides_gras_satures?: string;
-      valeur_energetique_kj?: string;
-      valeur_energetique_kcal?: string;
-    };
-  };
   packaging?: string;
   categories?: {
     id?: string;
@@ -126,7 +96,7 @@ type CarrefourProduct = {
     label?: string;
     level?: number;
   }[];
-  nutriscore?: string;
+  nutriscore?: unknown;
   more_offers?: {
     count?: number;
     best_offer_id?: unknown;
@@ -139,13 +109,7 @@ type CarrefourProduct = {
   price_per_unit?: string;
   customer_reviews?: {
     count?: number;
-    rates?: {
-      "1"?: number;
-      "2"?: number;
-      "3"?: number;
-      "4"?: number;
-      "5"?: number;
-    };
+    rates?: unknown;
     average?: number;
   };
   price_per_unit_float?: number;
@@ -185,80 +149,44 @@ Example response from the API reference, abridged — real values depend on the 
 
 ```json
 {
-  "brand": "BRIDELICE",
-  "image": "https://media.carrefour.fr/media/referential/media/401fcdeffbdc46d69f04f16ff1c15acd/p_1500x1500/03155251205425_H1N1_s02.png",
-  "price": "1,99€",
-  "title": "Crème Fraiche Épaisse Légère 15% MG BRIDELICE",
-  "contact": {
-    "consumer": {
-      "email": null,
-      "phone": "example",
-      "address": "example",
-      "website": "example",
-      "company_name": "example"
-    },
-    "operator": {
-      "email": null,
-      "phone": null,
-      "address": "example",
-      "website": null,
-      "company_name": "example"
-    }
-  },
+  "brand": "CARTE NOIRE",
+  "image": "https://media.carrefour.fr/medias/p_1500x1500/cafemoulu.png",
+  "price": "4,99€",
+  "title": "Café Moulu Classique 100% Arabica Intensité 7 CARTE NOIRE",
   "currency": "€",
-  "features": {
-    "nom_legal": "Crème légère à 15% M.G.",
-    "ingredients": "Ingrédients : Crème légère (97%) (LAIT) (origine France), amidon modifié, ferments lactiques (LAIT).",
-    "valeurs_nutritionnelles": {
-      "sel": "0.03 g / 25 g",
-      "sucres": "1 g / 25 g",
-      "glucides": "1.5 g / 25 g",
-      "proteines": "0.6 g / 25 g",
-      "matieres_grasses": "3.8 g / 25 g",
-      "acides_gras_satures": "2.5 g / 25 g",
-      "valeur_energetique_kj": "175 kJ / 25 g",
-      "valeur_energetique_kcal": "42 kcal / 25 g"
-    }
-  },
-  "packaging": "le pot de 50 cl",
+  "packaging": "les 2 paquets de 250g",
   "categories": [
     {
-      "id": "36993",
-      "slug": "cremerie",
-      "label": "Crèmerie et Produits laitiers",
+      "id": "2183",
+      "slug": "epicerie-sucree",
+      "label": "Epicerie sucrée",
       "level": 1
     },
     {
-      "id": "36997",
-      "slug": "beurres-cremes",
-      "label": "Beurres et Crèmes",
+      "id": "39473",
+      "slug": "cafes",
+      "label": "Cafés",
       "level": 2
     }
   ],
-  "nutriscore": "O",
+  "nutriscore": null,
   "more_offers": {
     "count": 0,
     "best_offer_id": null,
     "best_offer_price": null
   },
-  "price_float": 1.99,
-  "short_title": "Crème Fraiche Épaisse Légère 15% MG BRIDELICE",
+  "price_float": 4.99,
+  "short_title": "Café Moulu Classique 100% Arabica Intensité 7 CARTE NOIRE",
   "business_type": "food",
   "is_best_seller": false,
-  "price_per_unit": "3.98 € / L",
+  "price_per_unit": "9.98 € / KG",
   "customer_reviews": {
-    "count": 4,
-    "rates": {
-      "1": 0,
-      "2": 0,
-      "3": 0,
-      "4": 0,
-      "5": 100
-    },
+    "count": 2,
+    "rates": null,
     "average": 5
   },
-  "price_per_unit_float": 3.98,
-  "price_per_unit_measure": "L",
+  "price_per_unit_float": 9.98,
+  "price_per_unit_measure": "KG",
   "price_per_unit_currency": "€"
 }
 ```
@@ -271,27 +199,27 @@ Example response from the API reference, abridged — real values depend on the 
 | `image` | string |  |
 | `price` | string |  |
 | `title` | string |  |
-| `contact` | object |  |
-| `contact.consumer` | object |  |
-| `contact.operator` | object |  |
 | `currency` | string |  |
-| `features` | object |  |
-| `features.nom_legal` | string |  |
-| `features.ingredients` | string |  |
-| `features.valeurs_nutritionnelles` | object |  |
 | `packaging` | string |  |
 | `categories[]` | object[] |  |
 | `categories[].id` | string |  |
 | `categories[].slug` | string |  |
 | `categories[].label` | string |  |
 | `categories[].level` | integer |  |
-| `nutriscore` | string |  |
+| `nutriscore` | object |  |
 | `more_offers` | object |  |
 | `more_offers.count` | integer |  |
 | `more_offers.best_offer_id` | object |  |
 | `more_offers.best_offer_price` | object |  |
 | `price_float` | number |  |
 | `short_title` | string |  |
+| `business_type` | string |  |
+| `is_best_seller` | boolean |  |
+| `price_per_unit` | string |  |
+| `customer_reviews` | object |  |
+| `customer_reviews.count` | integer |  |
+| `customer_reviews.rates` | object |  |
+| `customer_reviews.average` | integer |  |
 
 ## Carrefour Search API
 
@@ -616,7 +544,7 @@ Credits per call: `/v2/carrefour/product` **2**, `/v2/carrefour/search` **2**, `
 
 ### What data does the Carrefour API return?
 
-Each endpoint returns structured JSON: **Carrefour Product** — `brand`, `image`, `price`, `title`, `contact`, `contact.consumer`; **Carrefour Search** — `results[]`, `results[].id`, `results[].slug`, `results[].image`, `results[].price`, `results[].title`; **Carrefour Suggest** — `results[]`, `results[].id`, `results[].type`, `results[].links`, `results[].attributes`.
+Each endpoint returns structured JSON: **Carrefour Product** — `brand`, `image`, `price`, `title`, `currency`, `packaging`; **Carrefour Search** — `results[]`, `results[].id`, `results[].slug`, `results[].image`, `results[].price`, `results[].title`; **Carrefour Suggest** — `results[]`, `results[].id`, `results[].type`, `results[].links`, `results[].attributes`.
 
 ### How do I paginate Carrefour results?
 
